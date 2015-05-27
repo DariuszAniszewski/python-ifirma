@@ -1,6 +1,6 @@
 from unittest.case import TestCase
 
-from ifirma import Client
+from python_ifirma.ifirma import Client
 
 
 class TestClient(TestCase):
@@ -16,6 +16,17 @@ class TestClient(TestCase):
             "Warszawa"
         )
 
+    def __create_power_client(self):
+        self.client = Client(
+            "name",
+            "street",
+            "00-001",
+            "Polska",
+            "Warszawa",
+            email="email@server.com"
+        )
+
+
     def testClient(self):
         self.__create_basic_client()
         get_dict = self.client.get_dict()
@@ -30,6 +41,10 @@ class TestClient(TestCase):
         self.assertIn("Telefon", get_dict)
         self.assertIn("OsobaFizyczna", get_dict)
 
-    def testEmail(self):
+    def testEmailUnSet(self):
         self.__create_basic_client()
         self.assertIsNone(self.client.get_dict()["Email"])
+
+    def testEmailSet(self):
+        self.__create_power_client()
+        self.assertIsNotNone(self.client.get_dict()["Email"])
