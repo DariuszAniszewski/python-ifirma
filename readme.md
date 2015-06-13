@@ -27,6 +27,12 @@ Go to your iFirma account and generate API keys of following types:
 
 iFirma offers [demo account](https://www.ifirma.pl/cgi-bin/WebObjects/ifirma-demo.woa/wa/demo) that can be used for testing and development
 
+##Installation
+
+Just add following line to your `requirements.txt` and let `pip` do rest of the work
+```
+-e -e git+git://github.com/DariuszAniszewski/python-ifirma.git#egg=python-ifirma
+```
 
 ##Usage
 
@@ -61,6 +67,6 @@ invoice = NewInvoiceParams(client, [position])
 invoice_id = ifirma_client.generate_invoice(invoice)
 ```
 
-In near futore you can use `invoice_id` to perform other actions like downloading PDF or getting details.
+In near future you can use `invoice_id` to perform other actions like downloading PDF or getting details.
 
 **That's all folks**
