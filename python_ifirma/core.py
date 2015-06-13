@@ -3,8 +3,8 @@ import json
 import datetime
 from time import strftime
 
+from python_ifirma.exceptions import PythonIfirmaExceptionFactory
 from python_ifirma.helpers import Helpers
-
 import requests
 
 
@@ -67,7 +67,7 @@ class Position:
         }
 
 
-class Invoice:
+class NewInvoiceParams:
     def __init__(self, client, positions):
         self.client = client
         self.positions = positions
@@ -115,6 +115,20 @@ class iFirmaAPI():
         self.__invoice_key_value = Helpers.unhex_key_value(_invoice_key_value)
         self.__user_key_value = Helpers.unhex_key_value(_user_key_value)
 
+    @staticmethod
+    def __execute_post_request(headers, request_content, url):
+        response = requests.post(url, data=request_content, headers=headers)
+        response_dict = json.loads(response.content.decode("utf-8"), 'utf-8')
+        if "response" not in response_dict:
+            raise PythonIfirmaExceptionFactory.throw_exception_by_code(-1)
+        real_response_content = response_dict["response"]
+        response_code = real_response_content.get("Kod", -1)
+
+        if response_code != 0:
+            raise PythonIfirmaExceptionFactory.throw_exception_by_code(response_code)
+
+        return response_dict
+
     def __create_invoice_and_return_id(self, invoice, url):
         request_content = json.dumps(invoice.get_request_data(), separators=(',', ':'))
         request_hash_text = "{}{}{}{}".format(
@@ -131,8 +145,9 @@ class iFirmaAPI():
                 Helpers.get_hmac_of_text(self.__invoice_key_value, request_hash_text)
             )
         }
-        response = requests.post(url, data=request_content, headers=headers)
-        response_dict = json.loads(response.content.decode("utf-8"), 'utf-8')
+
+        response_dict = self.__execute_post_request(headers, request_content, url)
+
         if response_dict["response"].get("Identyfikator"):
             invoice_id = response_dict["response"]["Identyfikator"]
             return invoice_id

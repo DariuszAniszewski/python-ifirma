@@ -1,6 +1,7 @@
 from unittest.case import TestCase
 
-from python_ifirma.core import Client, iFirmaAPI, Invoice, Position, VAT, Address
+from python_ifirma.core import Client, iFirmaAPI, NewInvoiceParams, Position, VAT, Address
+from python_ifirma import exceptions
 from python_ifirma.helpers import Helpers
 
 
@@ -92,7 +93,6 @@ class TestClient(TestCase):
 
 class TestCreateInvoice(TestCase):
     def setUp(self):
-        print("SERUP")
         self.ifirma_client = iFirmaAPI(TEST_IFIRMA_USER, TEST_IFIRMA_INVOICE_KEY, TEST_IFIRMA_USER_KEY)
 
         self.client = Client(
@@ -105,11 +105,12 @@ class TestCreateInvoice(TestCase):
         self.position = Position(VAT.VAT_23, 1, 1000, "nazwa", "szt")
 
     def test_generate_invoice(self):
-        invoice = Invoice(self.client, [self.position])
+        invoice = NewInvoiceParams(self.client, [self.position])
         self.assertIsNotNone(self.ifirma_client.generate_invoice(invoice))
 
     def test_generate_invoice_with_position_with_bad_vat(self):
         bad_position = Position(0.22, 1, 1000, "nazwa", "szt")
 
-        invoice = Invoice(self.client, [bad_position])
-        self.assertIsNone(self.ifirma_client.generate_invoice(invoice))
+        with self.assertRaises(exceptions.BadRequestParameters):
+            invoice = NewInvoiceParams(self.client, [bad_position])
+            self.ifirma_client.generate_invoice(invoice)
