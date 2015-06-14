@@ -8,10 +8,10 @@ Extremely simple wrapper for iFirma API.
 **Implemented**
 
 - generating invoice in iFirma service
+- downloading invoice PDF
 
 **Very soon**
 
-- downloading invoice PDF
 - generating proforma invoice
 - generating invoice based on proforma
 
@@ -67,6 +67,12 @@ invoice = NewInvoiceParams(client, [position])
 invoice_id = ifirma_client.generate_invoice(invoice)
 ```
 
-In near future you can use `invoice_id` to perform other actions like downloading PDF or getting details.
+#####4. Download invoice PDF
+In order to get PDF file with created invoice use `get_invoice_pdf(invoice_id)` method. It will return file handler.
+```python
+pdf_file_obj = ifirma_client.get_invoice_pdf(invoice_id)
+```
+
+
 
 **That's all folks**
