@@ -5,9 +5,9 @@ from python_ifirma import exceptions
 from python_ifirma.helpers import Helpers
 
 
-TEST_IFIRMA_USER = "$DEMO254271"
-TEST_IFIRMA_INVOICE_KEY = "7B10B300C2C029E2"
-TEST_IFIRMA_USER_KEY = "12EFF84EFE80A28A"
+TEST_IFIRMA_USER = "$DEMO254343"
+TEST_IFIRMA_INVOICE_KEY = "C501C88284462384"
+TEST_IFIRMA_USER_KEY = "B83E825D4D28BD11"
 
 
 class TestHelpers(TestCase):
@@ -114,3 +114,9 @@ class TestCreateInvoice(TestCase):
         with self.assertRaises(exceptions.BadRequestParameters):
             invoice = NewInvoiceParams(self.client, [bad_position])
             self.ifirma_client.generate_invoice(invoice)
+
+    def test_download_invoice(self):
+        invoice = NewInvoiceParams(self.client, [self.position])
+        invoice_id = self.ifirma_client.generate_invoice(invoice)
+
+        self.assertIsNotNone(self.ifirma_client.get_invoice_pdf(invoice_id))

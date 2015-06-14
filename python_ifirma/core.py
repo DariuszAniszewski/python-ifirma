@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import six
 import json
 import datetime
 from time import strftime
@@ -129,6 +130,12 @@ class iFirmaAPI():
 
         return response_dict
 
+    def __create_authentication_header_value(self, request_hash_text):
+        return "IAPIS user={}, hmac-sha1={}".format(
+            self.__username,
+            Helpers.get_hmac_of_text(self.__invoice_key_value, request_hash_text)
+        )
+
     def __create_invoice_and_return_id(self, invoice, url):
         request_content = json.dumps(invoice.get_request_data(), separators=(',', ':'))
         request_hash_text = "{}{}{}{}".format(
@@ -140,10 +147,7 @@ class iFirmaAPI():
         headers = {
             "Accept": "application/json",
             "Content-type": "application/json; charset=UTF-8",
-            "Authentication": "IAPIS user={}, hmac-sha1={}".format(
-                self.__username,
-                Helpers.get_hmac_of_text(self.__invoice_key_value, request_hash_text)
-            )
+            "Authentication": self.__create_authentication_header_value(request_hash_text)
         }
 
         response_dict = self.__execute_post_request(headers, request_content, url)
@@ -157,3 +161,27 @@ class iFirmaAPI():
     def generate_invoice(self, invoice):
         url = "https://www.ifirma.pl/iapi/fakturakraj.json"
         return self.__create_invoice_and_return_id(invoice, url)
+
+    def get_invoice_pdf(self, invoice_id):
+        url = "https://www.ifirma.pl/iapi/fakturakraj/{}.pdf".format(invoice_id)
+        return self.__download_pdf(url)
+
+    def __download_pdf(self, url):
+        request_hash_text = "{}{}{}".format(
+            url,
+            self.__username,
+            self.__invoice_key_value,
+        )
+        headers = {
+            "Accept": "application/pdf",
+            "Content-type": "application/pdf; charset=UTF-8",
+            "Authentication": self.__create_authentication_header_value(request_hash_text)
+        }
+        resp = requests.get(url, headers=headers)
+
+        content = resp.content
+
+        file_obj = six.BytesIO()
+        file_obj.write(content)
+        file_obj.seek(0)
+        return file_obj
