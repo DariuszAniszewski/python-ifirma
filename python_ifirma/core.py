@@ -170,7 +170,7 @@ class iFirmaAPI():
         request_hash_text = "{}{}{}".format(
             url,
             self.__username,
-            self.__invoice_key_value,
+            self.__invoice_key_name,
         )
         headers = {
             "Accept": "application/pdf",
@@ -180,7 +180,6 @@ class iFirmaAPI():
         resp = requests.get(url, headers=headers)
 
         content = resp.content
-
         file_obj = six.BytesIO()
         file_obj.write(content)
         file_obj.seek(0)
