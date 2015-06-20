@@ -117,6 +117,8 @@ class TestCreateInvoice(TestCase):
 
     def test_download_invoice(self):
         invoice = NewInvoiceParams(self.client, [self.position])
-        invoice_id = self.ifirma_client.generate_invoice(invoice)
+        invoice_id, invoice_number = self.ifirma_client.generate_invoice(invoice)
 
+        self.assertIsNotNone(invoice_id)
+        self.assertIsNotNone(invoice_number)
         self.assertIsNotNone(self.ifirma_client.get_invoice_pdf(invoice_id))

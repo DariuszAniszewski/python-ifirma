@@ -55,16 +55,16 @@ client = Client(
 position = Position(
     VAT.VAT_23,  # VAT rate 
     1,  # Quantity
-    1000,  # Unit price
+    1000.00,  # Unit total price
     "nazwa",  # Position name
     "szt"  # Position unit
 )
 ```
 
-#####3. Create invoice in iFirma service and get it's id
+#####3. Create invoice in iFirma service and get it's id and number
 ```python
 invoice = NewInvoiceParams(client, [position])
-invoice_id = ifirma_client.generate_invoice(invoice)
+invoice_id, invoice_number = ifirma_client.generate_invoice(invoice)
 ```
 
 #####4. Download invoice PDF

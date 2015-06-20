@@ -160,11 +160,30 @@ class iFirmaAPI():
 
     def generate_invoice(self, invoice):
         url = "https://www.ifirma.pl/iapi/fakturakraj.json"
-        return self.__create_invoice_and_return_id(invoice, url)
+        invoice_id = self.__create_invoice_and_return_id(invoice, url)
+        if invoice_id:
+            invoice_number = self.__get_invoice_number(invoice_id)
+            return invoice_id, invoice_number
+        return None, None
 
     def get_invoice_pdf(self, invoice_id):
         url = "https://www.ifirma.pl/iapi/fakturakraj/{}.pdf".format(invoice_id)
         return self.__download_pdf(url)
+
+    def __get_invoice_number(self, invoice_id):
+        url = "https://www.ifirma.pl/iapi/fakturakraj/{}.json".format(invoice_id)
+        request_hash_text = "{}{}{}".format(
+            url,
+            self.__username,
+            self.__invoice_key_name,
+        )
+        headers = {
+            "Accept": "application/json",
+            "Content-type": "application/json; charset=UTF-8",
+            "Authentication": self.__create_authentication_header_value(request_hash_text)
+        }
+        resp = requests.get(url, headers=headers)
+        return json.loads(resp.content.decode('utf-8'))["response"]["PelnyNumer"]
 
     def __download_pdf(self, url):
         request_hash_text = "{}{}{}".format(
